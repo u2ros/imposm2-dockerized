@@ -1,0 +1,22 @@
+services:
+  postgis:
+    image: postgis/postgis:9.6-3.1
+    environment:
+      - POSTGRES_PASSWORD=mypass
+    volumes:
+      - ./postgres/datadir:/var/lib/postgresql/data # custom data dir (bypasses built in VOLUME)
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d # if datadir is empty, scripts from this folder will be executed (seed)
+    ports:
+      - "5444:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  imposm:
+    build: ./imposm
+    volumes:
+      - ./imposm/pbf:/app/pbf
+    #this uses the imposm connection string format: --connection postgis://user:passwd@localhost/dbname
+    command: imposm --connection postgis://postgres:mypass@postgis/postgres -m imposm-mapping.py --proj EPSG:32633 --read --write --optimize ./pbf/<YOUR PBF>
