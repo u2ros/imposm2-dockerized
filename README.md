@@ -25,3 +25,8 @@ Imposm is a great tool for importing/transforming Openstreetmap data. Sadly, ver
 Optional step:  After import run post_proc.sql on the database to change table and schema names as Imposm creates a lot of prefixes.
 
 **IMPORTANT: To connect to the containerized instance of postgis, use the port 5444 (not the default 5432) as defined in the docker-compose.yml**
+
+Links: 
+
+Imposm 2.6 reference: https://imposm.org/docs/imposm/latest/
+Imposm mapping reference: https://imposm.org/docs/imposm/latest/mapping.html
