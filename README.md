@@ -29,4 +29,5 @@ Optional step:  After import run post_proc.sql on the database to change table a
 Links: 
 
 Imposm 2.6 reference: https://imposm.org/docs/imposm/latest/
+
 Imposm mapping reference: https://imposm.org/docs/imposm/latest/mapping.html
