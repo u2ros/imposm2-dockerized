@@ -55,8 +55,8 @@ db_conf = Options(
     user='osm',
     password='osm',
     sslmode='allow',
-    prefix='osm_new_',
-    proj='epsg:900913',
+    prefix='',
+    proj='epsg:3857',
 )
 
 powerlines = LineStrings(
@@ -70,6 +70,15 @@ powerlines = LineStrings(
         ('wires', Integer()),
         ('name', String()),
     )
+)
+
+wind_turbine = Points(
+    name = 'powerline_wind_turbine',
+    mapping = {
+        'power': {'generator'},
+        'generator:source': ('wind',),
+        'generator:method': ('wind_turbine',)
+    }
 )
 
 powerline_masts = Points(
@@ -95,139 +104,6 @@ powerline_area = Polygons(
     )
 )
 
-class Highway(LineStrings):
-    fields = (
-        ('tunnel', Bool()),
-        ('bridge', Bool()),
-        ('ref', String()),
-        ('z_order', WayZOrder()),
-    )
-    field_filter = (
-        ('area', Bool()),
-    )
-
-places = Points(
-    name = 'places',
-    mapping = {
-        'place': (
-            'city',
-            'town',
-            'village',
-            'hamlet',
-            'suburb',
-        ),
-    },
-    fields = (
-        ('z_order', ZOrder([
-            'city',
-            'town',
-            'village',
-            'hamlet',
-            'suburb',
-        ])),
-    ),
-)
-
-admin = Polygons(
-    name = 'admin',
-    mapping = {
-        'boundary': (
-            'administrative',
-        ),
-    },
-    fields = (
-        ('admin_level', OneOfInt('1 2 3 4 5 6'.split())),
-    ),
-)
-
-motorways = Highway(
-    name = 'motorways',
-    mapping = {
-        'highway': (
-            'motorway',
-            'motorway_link',
-            'trunk',
-            'trunk_link',
-        ),
-    }
-)
-
-mainroads = Highway(
-    name = 'mainroads',
-    mapping = {
-        'highway': (
-            'primary',
-            'primary_link',
-            'secondary',
-            'secondary_link',
-            'tertiary',
-    )}
-)
-
-buildings = Polygons(
-    name = 'buildings',
-    mapping = {
-        'building': (
-            '__any__',
-    )}
-)
-
-minorroads = Highway(
-    name = 'minorroads',
-    mapping = {
-        'highway': (
-            'road',
-            'track',
-            'service',
-            'bridleway',
-            'living_street',
-            'residential',
-    )}
-)
-
-railways = LineStrings(
-    name = 'railways',
-    fields = (
-        ('tunnel', Bool()),
-        ('bridge', Bool()),
-        # ('ref', String()),
-        ('z_order', WayZOrder()),
-    ),
-    mapping = {
-        'railway': (
-            'rail',
-            'tram',
-            'light_rail',
-            'subway',
-            'narrow_gauge',
-            'preserved',
-            'funicular',
-            'monorail',
-    )}
-)
-
-waterways = LineStrings(
-    name = 'waterways',
-    mapping = {
-        'waterway': (
-            'stream',
-            'river',
-            'canal',
-            'drain',
-    )},
-    field_filter = (
-        ('tunnel', Bool()),
-    ),
-)
-
-waterareas = Polygons(
-    name = 'waterareas',
-    mapping = {
-        'waterway': ('riverbank',),
-        'natural': ('water',),
-        'landuse': ('basin', 'reservoir'),
-})
-
 airports = Polygons(
     name = 'airport_area',
     mapping = {
@@ -238,153 +114,4 @@ airports = Polygons(
         ('phone', String()),
         ('aerodrome:type', String()),
     )
-)
-
-landusages = Polygons(
-    name = 'landusages',
-    fields = (
-        ('area', PseudoArea()),
-    ),
-    mapping = {
-        'landuse': (
-            'park',
-            'forest',
-            'residential',
-            'commercial',
-            'industrial',
-            'railway',
-            'grass',
-            'farmyard',
-            'farm',
-            'farmland',
-            'wood',
-            'meadow',
-            'quarry',
-        ),
-})
-
-admin_gen0 = GeneralizedTable(
-    name = 'admin_gen0',
-    tolerance = meter_to_mapunit(250.0),
-    origin = admin,
-)
-
-powerlines_gen0 = GeneralizedTable(
-    name = 'powerline_gen0',
-    tolerance = meter_to_mapunit(500.0),
-    origin = powerlines,
-)
-
-
-
-motorways_gen2 = GeneralizedTable(
-    name = 'motorways_gen2',
-    tolerance = meter_to_mapunit(50.0),
-    origin = motorways,
-)
-
-motorways_gen1 = GeneralizedTable(
-    name = 'motorways_gen1',
-    tolerance = meter_to_mapunit(200.0),
-    origin = motorways_gen2,
-)
-
-motorways_gen0 = GeneralizedTable(
-    name = 'motorways_gen0',
-    tolerance = meter_to_mapunit(500.0),
-    origin = motorways_gen1,
-)
-
-
-
-
-mainroads_gen2 = GeneralizedTable(
-    name = 'mainroads_gen2',
-    tolerance = meter_to_mapunit(50.0),
-    origin = mainroads,
-)
-
-mainroads_gen1 = GeneralizedTable(
-    name = 'mainroads_gen1',
-    tolerance = meter_to_mapunit(100.0),
-    origin = mainroads_gen2,
-)
-
-mainroads_gen0 = GeneralizedTable(
-    name = 'mainroads_gen0',
-    tolerance = meter_to_mapunit(250.0),
-    origin = mainroads_gen1,
-)
-
-
-
-railways_gen2 = GeneralizedTable(
-    name = 'railways_gen2',
-    tolerance = meter_to_mapunit(50.0),
-    origin = railways,
-)
-
-railways_gen1 = GeneralizedTable(
-    name = 'railways_gen1',
-    tolerance = meter_to_mapunit(100.0),
-    origin = railways_gen2,
-)
-
-railways_gen0 = GeneralizedTable(
-    name = 'railways_gen0',
-    tolerance = meter_to_mapunit(250.0),
-    origin = railways_gen1,
-)
-
-
-
-
-landusages_gen2 = GeneralizedTable(
-    name = 'landusages_gen2',
-    tolerance = meter_to_mapunit(50.0),
-    origin = landusages,
-    where = "ST_Area(geometry)>%f" % sqr_meter_to_mapunit(50000),
-)
-
-landusages_gen1 = GeneralizedTable(
-    name = 'landusages_gen1',
-    tolerance = meter_to_mapunit(100.0),
-    origin = landusages_gen2,
-    where = "ST_Area(geometry)>%f" % sqr_meter_to_mapunit(50000),
-)
-
-landusages_gen0 = GeneralizedTable(
-    name = 'landusages_gen0',
-    tolerance = meter_to_mapunit(250.0),
-    origin = landusages_gen1,
-    where = "ST_Area(geometry)>%f" % sqr_meter_to_mapunit(500000),
-)
-
-
-
-waterareas_gen0 = GeneralizedTable(
-    name = 'waterareas_gen0',
-    tolerance = meter_to_mapunit(50.0),
-    origin = waterareas,
-    where = "ST_Area(geometry)>%f" % sqr_meter_to_mapunit(50000),
-)
-
-waterareas_gen1 = GeneralizedTable(
-    name = 'waterareas_gen1',
-    tolerance = meter_to_mapunit(100.0),
-    origin = waterareas,
-    where = "ST_Area(geometry)>%f" % sqr_meter_to_mapunit(500000),
-)
-
-
-landuse_gen2_valid = FixInvalidPolygons(
-    origin = landusages_gen2,
-)
-
-landuse_gen1_valid = FixInvalidPolygons(
-    origin = landusages_gen1,
-)
-
-landuse_gen0_valid = FixInvalidPolygons(
-    origin = landusages_gen0,
 )
